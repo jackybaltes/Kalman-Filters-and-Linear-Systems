@@ -1,0 +1,1221 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Kalman Filters and Linear Systems</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/ntnuerc.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+        <script src="https://daybrush.com/scenejs/release/latest/dist/scene.min.js"></script>
+		
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+        <script src="js/ntnu.js"></script>
+    </head>
+    <body>
+        <div class="reveal">
+        <div class="slides">
+            
+<section id="start" data-state="start">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Kalman Filters and Linear Systems</h1>
+
+<p>
+      Jacky Baltes<br>
+      National Taiwan Normal University<br>
+      Taipei, Taiwan<br>
+      <a href="mailto:jacky.baltes@ntnu.edu.tw">jacky.baltes@ntnu.edu.tw</a><br>
+</p>
+
+09 November 2020
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-613d886e-5ba0-4060-b264-08a59410207a" ><span id="id-613d886e-5ba0-4060-b264-08a59410207a"><img id="img-id-613d886e-5ba0-4060-b264-08a59410207a"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-5d2e52b6-59f7-414a-b927-fd5076eb0dd8" ><span id="id-5d2e52b6-59f7-414a-b927-fd5076eb0dd8"><img id="img-id-5d2e52b6-59f7-414a-b927-fd5076eb0dd8" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00003_frag_00001" data-state="slide_00003_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Linear Systems</h1>
+
+<div class="jb-text">
+<ul>
+<li>A linear transformation can be modelled by matrix multiplication</li>
+<li>State transition/process model
+\[
+  x_{t} = A x_{t-1} + w_{t-1} \\
+  A = \left[ \begin{array}{cc}A_x & 0\\0 & A_y\\ \end{array}\right] \\
+  w_{t-1} = \mbox{Process noise covariance matrix}
+\]
+</li>
+<li>Measurement model
+\[
+  \hat{z}_{t+1} = H \hat{x}_t + v_{t} \\
+  H = \left[ \begin{array}{cc}H_x & 0\\0 & H_y\\ \end{array}\right] \\
+  \hat{v}_{t} = \mbox{Measurement noise covariance matrix}
+\]
+</ul>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-da8096f5-0097-433f-b061-6bd6dab4d2fb" ><span id="id-da8096f5-0097-433f-b061-6bd6dab4d2fb"><img id="img-id-da8096f5-0097-433f-b061-6bd6dab4d2fb"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-f2994b22-9914-4719-ac80-e448b5c2f8b3" ><span id="id-f2994b22-9914-4719-ac80-e448b5c2f8b3"><img id="img-id-f2994b22-9914-4719-ac80-e448b5c2f8b3" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00004_frag_00001" data-state="slide_00004_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Initialization</h1>
+
+<div class="jb-text">
+<ul>
+\[
+  A = \left[ \begin{array}{cc}1 & 0\\0 & 1\\ \end{array}\right] \\
+\]
+</li>
+<li>Process noise covariance
+\[
+  Q = E\{w \cdot w^T\} = \left[\begin{array}{cc}Q_{xx} & 0\\0 & Q_{yy}\\ \end{array}\right] \\
+\]
+</li>
+<li>Measurement noise covariance
+\[
+  R = E\{v \cdot v^T\} = \left[\begin{array}{cc}R_{xx} & 0\\0 & R_{yy}\\ \end{array}\right] \\
+\]
+</li>
+</ul>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-8654bfd7-fbf4-4218-b544-54a599423909" ><span id="id-8654bfd7-fbf4-4218-b544-54a599423909"><img id="img-id-8654bfd7-fbf4-4218-b544-54a599423909"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-0a79ee94-0d4b-426d-bc3a-3d4433935b83" ><span id="id-0a79ee94-0d4b-426d-bc3a-3d4433935b83"><img id="img-id-0a79ee94-0d4b-426d-bc3a-3d4433935b83" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00005_frag_00001" data-state="slide_00005_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>First Step</h1>
+
+<div class="jb-text">
+<ul>
+<li>Position estimate
+\[
+  \bar{x}_{0} = H \bar{z}_{0}
+\]
+</li>
+<li>Noise estimate
+\[
+  P_{0} = \left[\begin{array}{cc} \epsilon & 0\\0 & \epsilon\\ \end{array}\right] \\
+\]
+</li>
+</ul>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-4ab1cced-abbd-45b1-a886-92c9e0096d55" ><span id="id-4ab1cced-abbd-45b1-a886-92c9e0096d55"><img id="img-id-4ab1cced-abbd-45b1-a886-92c9e0096d55"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-65d3ed8b-7538-45f3-9538-bec61d8bdee6" ><span id="id-65d3ed8b-7538-45f3-9538-bec61d8bdee6"><img id="img-id-65d3ed8b-7538-45f3-9538-bec61d8bdee6" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00006_frag_00001" data-state="slide_00006_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Predict</h1>
+
+<div class="jb-text">
+<ul>
+<li>\( ?^{-}_{k} \) indicates output of the predict step at time \( k \)</li>
+<li>New state estimate
+\[
+  \bar{x}^{-}_{k} = A \bar{x}_{k-1} \\
+\]
+</li>
+<li>Noise estimate
+\[
+  P^{-}_{k} = A P_{k-1} A^T + Q\\
+\]
+</li>
+</ul>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-b32522f2-2dc2-4c88-9a3b-665fc01c7e12" ><span id="id-b32522f2-2dc2-4c88-9a3b-665fc01c7e12"><img id="img-id-b32522f2-2dc2-4c88-9a3b-665fc01c7e12"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-656fed26-45be-4447-a9f7-83685a793693" ><span id="id-656fed26-45be-4447-a9f7-83685a793693"><img id="img-id-656fed26-45be-4447-a9f7-83685a793693" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00007_frag_00001" data-state="slide_00007_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Correct</h1>
+
+<div class="jb-text">
+<ul>
+<li>\( ?_{k} \) indicates output of the correct step at time \( k \)</li>
+<li>New state estimate
+\[
+  \bar{x}_{k} = \bar{x}^{-}_{k} + K( H \bar{z}_{k} - \bar{x}^{-}_{k} ) \\
+\]
+</li>
+<li>New noise estimate
+\[
+  P_{k} = (I-KH) P^{-}_{k}\\
+\]
+</li>
+<li>Kalman Gain</li>
+\[
+  K = \frac{P^{-}_{k} H^{T}}{HP^{-}_{k}H^{T} + R}\\
+\]
+</ul>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-6c15a511-04e1-4662-9d07-39dcf276c3c2" ><span id="id-6c15a511-04e1-4662-9d07-39dcf276c3c2"><img id="img-id-6c15a511-04e1-4662-9d07-39dcf276c3c2"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-704040a2-81fe-4ce5-bc74-fd6446ff5776" ><span id="id-704040a2-81fe-4ce5-bc74-fd6446ff5776"><img id="img-id-704040a2-81fe-4ce5-bc74-fd6446ff5776" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00008_frag_00001" data-state="slide_00008_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Iterate</h1>
+
+<div class="jb-text">
+<table>
+<tr>
+<td style="background:#408040;text-align:center">Predict</td>
+<td style="background:#404080;text-align:center">Correct</td>
+</tr>
+<tr>
+<td style="background:#408040;text-align:center">
+\[
+  \bar{x}^{-}_{k} = A \bar{x}_{k-1} \\
+  P^{-}_{k} = A P_{k-1} A^T + Q\\
+\]
+
+</td>
+<td style="background:#404080">
+\[
+  \bar{x}_{k} = \bar{x}^{-}_{k} + K( H \bar{z}_{k} - \bar{x}^{-}_{k} ) \\
+  P_{k} = (I-KH) P^{-}_{k}\\
+  K = P^{-}_{k} H^{T} (HP^{-}_{k}H^{T} + R)^{-1}\\
+\]
+</td>
+</tr>
+</table>
+<div style="position:absolute;top:-60px;left:40%;">
+<span id="id-5d462f7e-5ce0-445b-8b2e-c35181c84643" ><span id="id-5d462f7e-5ce0-445b-8b2e-c35181c84643"><img id="img-id-5d462f7e-5ce0-445b-8b2e-c35181c84643"     src="assets/images/arrows.svg"/></span>
+</span>
+
+</div>
+</div>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-be150ef0-4a39-48bb-abe7-d331ebf77598" ><span id="id-be150ef0-4a39-48bb-abe7-d331ebf77598"><img id="img-id-be150ef0-4a39-48bb-abe7-d331ebf77598"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-932381e9-5d67-4277-9f6e-475bd8430670" ><span id="id-932381e9-5d67-4277-9f6e-475bd8430670"><img id="img-id-932381e9-5d67-4277-9f6e-475bd8430670" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00009_frag_00001" data-state="slide_00009_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span>A <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [ <span style="color: #666666">1</span>, <span style="color: #666666">0</span> ], [<span style="color: #666666">0</span>, <span style="color: #666666">1</span>] ] )
+
+<span style="color: #408080; font-style: italic"># w = 0.5</span>
+
+<span style="color: #408080; font-style: italic"># w_cov = np.array( [ [ 0.5, 0], [0, 0.3] ] )</span>
+
+Q <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [ <span style="color: #666666">0.5</span>, <span style="color: #666666">0</span> ], [<span style="color: #666666">0</span>, <span style="color: #666666">1.5</span>] ] )
+
+x_start <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [<span style="color: #666666">0</span>, <span style="color: #666666">0</span>] )
+
+H <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [ <span style="color: #666666">1.0</span>, <span style="color: #666666">0</span> ], [ <span style="color: #666666">0</span>, <span style="color: #666666">1.0</span> ] ] )
+
+R <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [ <span style="color: #666666">0.25</span>, <span style="color: #666666">0</span> ], [<span style="color: #666666">0</span>, <span style="color: #666666">0.25</span>] ] )
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-f8081f63-43af-4d7d-8d9d-b08ba3378eb0" ><span id="id-f8081f63-43af-4d7d-8d9d-b08ba3378eb0"><img id="img-id-f8081f63-43af-4d7d-8d9d-b08ba3378eb0"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-4ff8ae30-9b01-4a1b-9eb1-e400aacc4054" ><span id="id-4ff8ae30-9b01-4a1b-9eb1-e400aacc4054"><img id="img-id-4ff8ae30-9b01-4a1b-9eb1-e400aacc4054" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00010_frag_00001" data-state="slide_00010_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span>N_POINTS <span style="color: #666666">=</span> <span style="color: #666666">1000</span>
+
+xt <span style="color: #666666">=</span> np<span style="color: #666666">.</span>arange(N_POINTS)
+yt <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros( <span style="color: #008000">len</span>(xt) )
+
+ds <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros( (<span style="color: #666666">2</span>, <span style="color: #008000">len</span>(xt) ) )
+
+current <span style="color: #666666">=</span> x_start
+
+<span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(N_POINTS):
+  ampl <span style="color: #666666">=</span> <span style="color: #666666">10</span> <span style="color: #666666">*</span> <span style="color: #666666">0.9</span> <span style="color: #666666">**</span> (i<span style="color: #666666">/15</span>)
+  y <span style="color: #666666">=</span> ampl <span style="color: #666666">*</span> math<span style="color: #666666">.</span>cos(i<span style="color: #666666">/</span>N_POINTS <span style="color: #666666">*</span> (<span style="color: #666666">25*2.0*</span>math<span style="color: #666666">.</span>pi) )
+  yt[i] <span style="color: #666666">=</span> y
+
+ds[<span style="color: #666666">0</span>,:] <span style="color: #666666">=</span> xt
+ds[<span style="color: #666666">1</span>,:] <span style="color: #666666">=</span> yt
+ds <span style="color: #666666">=</span> ds <span style="color: #666666">+</span> np<span style="color: #666666">.</span>random<span style="color: #666666">.</span>multivariate_normal( [<span style="color: #666666">0</span>,<span style="color: #666666">0</span>], R, <span style="color: #008000">len</span>(ds[<span style="color: #666666">0</span>]))<span style="color: #666666">.</span>T
+  
+fig <span style="color: #666666">=</span> plt<span style="color: #666666">.</span>figure( dpi<span style="color: #666666">=300</span>)
+ax1 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">1</span>,<span style="color: #666666">2</span>,<span style="color: #666666">1</span>)
+
+ax1<span style="color: #666666">.</span>plot( xt, yt, <span style="color: #BA2121">&#39;-&#39;</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&#39;Ground truth&#39;</span> )
+ax1<span style="color: #666666">.</span>plot( ds[<span style="color: #666666">0</span>], ds[<span style="color: #666666">1</span>], <span style="color: #BA2121">&#39;--&#39;</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Measured track&quot;</span>)
+ax1<span style="color: #666666">.</span>legend()
+
+START<span style="color: #666666">=35</span>
+STOP<span style="color: #666666">=</span>START<span style="color: #666666">+20</span>
+
+ax2 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">1</span>,<span style="color: #666666">2</span>,<span style="color: #666666">2</span>)
+
+ax2<span style="color: #666666">.</span>plot( xt[START:STOP], yt[START:STOP], <span style="color: #BA2121">&#39;-&#39;</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&#39;Ground truth&#39;</span> )
+ax2<span style="color: #666666">.</span>plot( ds[<span style="color: #666666">0</span>,START:STOP], ds[<span style="color: #666666">1</span>,START:STOP], <span style="color: #BA2121">&#39;--&#39;</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Measured track&quot;</span>)
+ax2<span style="color: #666666">.</span>legend()
+
+d1 <span style="color: #666666">=</span> addJBFigure(<span style="color: #BA2121">&quot;d1&quot;</span>, <span style="color: #666666">0</span>, <span style="color: #666666">0</span>, fig )
+plt<span style="color: #666666">.</span>close()
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-e2ee8957-d293-4a58-b1dd-392947edd46e" ><span id="id-e2ee8957-d293-4a58-b1dd-392947edd46e"><img id="img-id-e2ee8957-d293-4a58-b1dd-392947edd46e"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-45dde864-f4f6-42b3-9e4c-aadf004e7784" ><span id="id-45dde864-f4f6-42b3-9e4c-aadf004e7784"><img id="img-id-45dde864-f4f6-42b3-9e4c-aadf004e7784" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00011_frag_00001" data-state="slide_00011_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Sample Problem</h1>
+
+<span id="id-f96aaea8-b428-4612-92e2-c44522dbd6a8" ><span id="id-f96aaea8-b428-4612-92e2-c44522dbd6a8"><img id="img-id-f96aaea8-b428-4612-92e2-c44522dbd6a8"     src="assets/images/d1.svg"/></span>
+</span>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-f6d2dd57-c001-475a-b9fc-a089fb75582b" ><span id="id-f6d2dd57-c001-475a-b9fc-a089fb75582b"><img id="img-id-f6d2dd57-c001-475a-b9fc-a089fb75582b"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-17764a92-ac9a-4e69-b60c-b28c8838d195" ><span id="id-17764a92-ac9a-4e69-b60c-b28c8838d195"><img id="img-id-17764a92-ac9a-4e69-b60c-b28c8838d195" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00012_frag_00001" data-state="slide_00012_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span><span style="color: #408080; font-style: italic"># Predict step</span>
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">predict</span>( x, P, A, Q ):
+  x_minus <span style="color: #666666">=</span> A<span style="color: #666666">.</span>dot( x )
+  P_minus <span style="color: #666666">=</span> A<span style="color: #666666">.</span>dot(P)<span style="color: #666666">.</span>dot(A<span style="color: #666666">.</span>T) <span style="color: #666666">+</span>Ｑ
+  <span style="color: #008000; font-weight: bold">return</span> x_minus, P_minus
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-0535fff3-42a4-4d1f-b801-bd69331095c7" ><span id="id-0535fff3-42a4-4d1f-b801-bd69331095c7"><img id="img-id-0535fff3-42a4-4d1f-b801-bd69331095c7"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-676255e1-0b6f-4dcd-8e89-d6e954771354" ><span id="id-676255e1-0b6f-4dcd-8e89-d6e954771354"><img id="img-id-676255e1-0b6f-4dcd-8e89-d6e954771354" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00013_frag_00001" data-state="slide_00013_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span><span style="color: #408080; font-style: italic"># Correct</span>
+
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">correct</span>( z, x_minus, P_minus, H, R ):
+  di <span style="color: #666666">=</span> np<span style="color: #666666">.</span>linalg<span style="color: #666666">.</span>inv( H<span style="color: #666666">.</span>dot(P_minus)<span style="color: #666666">.</span>dot(H<span style="color: #666666">.</span>T) <span style="color: #666666">+</span> R)
+  K <span style="color: #666666">=</span> P_minus<span style="color: #666666">.</span>dot(H<span style="color: #666666">.</span>T)<span style="color: #666666">.</span>dot(di)
+  x <span style="color: #666666">=</span> x_minus <span style="color: #666666">+</span> K<span style="color: #666666">.</span>dot( H<span style="color: #666666">.</span>dot(z) <span style="color: #666666">-</span> x_minus )
+  P <span style="color: #666666">=</span> np<span style="color: #666666">.</span>eye(<span style="color: #008000">len</span>(P_minus)) <span style="color: #666666">-</span> K<span style="color: #666666">.</span>dot( H )<span style="color: #666666">.</span>dot(P_minus)
+  <span style="color: #008000; font-weight: bold">return</span> x,P
+
+x <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ <span style="color: #666666">0</span>, <span style="color: #666666">10</span> ] )
+P <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [<span style="color: #666666">1</span>, <span style="color: #666666">0</span>], [<span style="color: #666666">0</span>, <span style="color: #666666">1</span>] ] )
+
+<span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(<span style="color: #666666">10</span>):
+  x_minus, P_minus <span style="color: #666666">=</span> predict( x, P, A, Q)
+  x, P <span style="color: #666666">=</span> correct( [ ds[<span style="color: #666666">0</span>,i], ds[<span style="color: #666666">1</span>,i] ], x_minus, P_minus, H, R )
+  <span style="color: #008000">print</span>( <span style="color: #BA2121">f&#39;Step </span><span style="color: #BB6688; font-weight: bold">{</span>i<span style="color: #BB6688; font-weight: bold">}</span><span style="color: #BA2121"> </span><span style="color: #BB6688; font-weight: bold">{</span>x<span style="color: #BB6688; font-weight: bold">}</span><span style="color: #BA2121"> </span><span style="color: #BB6688; font-weight: bold">{</span>P<span style="color: #BB6688; font-weight: bold">}</span><span style="color: #BA2121">, </span><span style="color: #BB6688; font-weight: bold">{</span>x_minus<span style="color: #BB6688; font-weight: bold">}</span><span style="color: #BA2121">, </span><span style="color: #BB6688; font-weight: bold">{</span>P_minus<span style="color: #BB6688; font-weight: bold">}</span><span style="color: #BA2121">&#39;</span> )
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+<div class="jb-print jb-render">
+<div class="jb-output jb-render code" style="text-align:center">
+<div class="jb-stdout code" style="display:inline-block; width:90%">
+<pre >
+Step 0 [-0.07535912  9.98001485] [[-0.28571429  0.        ]
+ [ 0.         -1.27272727]], [ 0 10], [[1.5 0. ]
+ [0.  2.5]]
+Step 1 [0.52100363 9.33407133] [[0.9010989  0.        ]
+ [0.         0.89177489]], [-0.07535912  9.98001485], [[0.21428571 0.        ]
+ [0.         0.22727273]]
+Step 2 [1.55889547 9.39302024] [[-0.18895248  0.        ]
+ [ 0.         -1.16543323]], [0.52100363 9.33407133], [[1.4010989  0.        ]
+ [0.         2.39177489]]
+Step 3 [1.92026399 9.19254244] [[0.82755372 0.        ]
+ [0.         0.80851644]], [1.55889547 9.39302024], [[0.31104752 0.        ]
+ [0.         0.33456677]]
+Step 4 [4.06768106 8.15378338] [[-0.11717202  0.        ]
+ [ 0.         -1.08294466]], [1.92026399 9.19254244], [[1.32755372 0.        ]
+ [0.         2.30851644]]
+Step 5 [4.74854114 7.19011711] [[0.768409   0.        ]
+ [0.         0.73924929]], [4.06768106 8.15378338], [[0.38282798 0.        ]
+ [0.         0.41705534]]
+Step 6 [5.81168341 5.21071105] [[-0.05957051  0.        ]
+ [ 0.         -1.01435726]], [4.74854114 7.19011711], [[1.268409   0.        ]
+ [0.         2.23924929]]
+Step 7 [7.37525994 4.64743707] [[0.71904714 0.        ]
+ [0.         0.67939754]], [5.81168341 5.21071105], [[0.44042949 0.        ]
+ [0.         0.48564274]]
+Step 8 [6.92711805 3.33378942] [[-0.01159173  0.        ]
+ [ 0.         -0.95512408]], [7.37525994 4.64743707], [[1.21904714 0.        ]
+ [0.         2.17939754]]
+Step 9 [8.30593052 1.5916902 ] [[0.67695021 0.        ]
+ [0.         0.62649546]], [6.92711805 3.33378942], [[0.48840827 0.        ]
+ [0.         0.54487592]]
+</pre>
+</div>
+</div>
+
+</div><!-- end of jb-print jb-render -->
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-fe17f408-9f7e-459e-ad02-6d6c961df771" ><span id="id-fe17f408-9f7e-459e-ad02-6d6c961df771"><img id="img-id-fe17f408-9f7e-459e-ad02-6d6c961df771"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-0a6cde60-edbf-430d-82f3-eb0ca71527b4" ><span id="id-0a6cde60-edbf-430d-82f3-eb0ca71527b4"><img id="img-id-0a6cde60-edbf-430d-82f3-eb0ca71527b4" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00014_frag_00001" data-state="slide_00014_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">matplotlib.pyplot</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">plt</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">numpy</span> <span style="color: #008000; font-weight: bold">as</span> <span style="color: #0000FF; font-weight: bold">np</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">math</span>
+<span style="color: #008000; font-weight: bold">import</span> <span style="color: #0000FF; font-weight: bold">random</span>
+
+fig <span style="color: #666666">=</span> plt<span style="color: #666666">.</span>figure( dpi<span style="color: #666666">=300</span>)
+
+
+data <span style="color: #666666">=</span> []
+
+x <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ <span style="color: #666666">0</span>, <span style="color: #666666">10</span> ] )
+P <span style="color: #666666">=</span> np<span style="color: #666666">.</span>array( [ [<span style="color: #666666">1</span>, <span style="color: #666666">0</span>], [<span style="color: #666666">0</span>, <span style="color: #666666">1</span>] ] )
+
+N_POINTS <span style="color: #666666">=</span> <span style="color: #666666">1000</span>
+
+xs <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(N_POINTS)
+ys <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(N_POINTS)
+ps <span style="color: #666666">=</span> np<span style="color: #666666">.</span>zeros(N_POINTS)
+
+<span style="color: #008000; font-weight: bold">for</span> i <span style="color: #AA22FF; font-weight: bold">in</span> <span style="color: #008000">range</span>(N_POINTS):
+  x_minus, P_minus <span style="color: #666666">=</span> predict( x, P, A, Q)
+  x, P <span style="color: #666666">=</span> correct( [ ds[<span style="color: #666666">0</span>,i], ds[<span style="color: #666666">1</span>,i] ], x_minus, P_minus, H, R )
+  xs[i] <span style="color: #666666">=</span> x[<span style="color: #666666">0</span>]
+  ys[i] <span style="color: #666666">=</span> x[<span style="color: #666666">1</span>]
+  ps[i] <span style="color: #666666">=</span> P[<span style="color: #666666">0</span>,<span style="color: #666666">0</span>]
+
+ax1 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">1</span>)
+ax1<span style="color: #666666">.</span>plot( xt[<span style="color: #666666">0</span>:N_POINTS], yt[<span style="color: #666666">0</span>:N_POINTS], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;True&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( ds[<span style="color: #666666">0</span>,<span style="color: #666666">0</span>:N_POINTS], ds[<span style="color: #666666">1</span>,<span style="color: #666666">0</span>:N_POINTS], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Measured&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( xs, ys, linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Filtered&quot;</span>)
+ax1<span style="color: #666666">.</span>legend()
+
+ax2 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">2</span> )
+ax2<span style="color: #666666">.</span>plot( np<span style="color: #666666">.</span>sqrt((xs<span style="color: #666666">-</span>xt[<span style="color: #666666">0</span>:N_POINTS])<span style="color: #666666">**2</span> <span style="color: #666666">+</span> (ys<span style="color: #666666">-</span>yt[<span style="color: #666666">0</span>:N_POINTS])<span style="color: #666666">**2</span>), linewidth<span style="color: #666666">=2</span> )
+
+ax3 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">3</span>)
+ax3<span style="color: #666666">.</span>plot( xs, ps, linewidth<span style="color: #666666">=2</span>)
+
+kf1 <span style="color: #666666">=</span> addJBFigure(<span style="color: #BA2121">&quot;kf1&quot;</span>, <span style="color: #666666">0</span>, <span style="color: #666666">0</span>, fig )
+plt<span style="color: #666666">.</span>close()
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-e48cb7c8-9fb6-49b1-bb21-97a982d61507" ><span id="id-e48cb7c8-9fb6-49b1-bb21-97a982d61507"><img id="img-id-e48cb7c8-9fb6-49b1-bb21-97a982d61507"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-330baba5-b0dc-4681-90c2-9ba68675de75" ><span id="id-330baba5-b0dc-4681-90c2-9ba68675de75"><img id="img-id-330baba5-b0dc-4681-90c2-9ba68675de75" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00015_frag_00001" data-state="slide_00015_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Kalman Filter Example</h1>
+
+<span id="id-fa72cf02-89d7-4df0-a418-624e848ff50b" ><span id="id-fa72cf02-89d7-4df0-a418-624e848ff50b"><img id="img-id-fa72cf02-89d7-4df0-a418-624e848ff50b"     src="assets/images/kf1.svg"/></span>
+</span>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-6ec1797e-129d-4954-820f-5d30d25a302b" ><span id="id-6ec1797e-129d-4954-820f-5d30d25a302b"><img id="img-id-6ec1797e-129d-4954-820f-5d30d25a302b"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-157bfd2b-8ad6-4cb5-a1c7-37eb45320650" ><span id="id-157bfd2b-8ad6-4cb5-a1c7-37eb45320650"><img id="img-id-157bfd2b-8ad6-4cb5-a1c7-37eb45320650" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00016_frag_00001" data-state="slide_00016_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span>START<span style="color: #666666">=35</span>
+STOP<span style="color: #666666">=</span>START<span style="color: #666666">+20</span>
+
+fig <span style="color: #666666">=</span> plt<span style="color: #666666">.</span>figure( dpi<span style="color: #666666">=300</span>)
+ax1 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">1</span>)
+ax1<span style="color: #666666">.</span>plot( xt[START:STOP], yt[START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;True&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( ds[<span style="color: #666666">0</span>,START:STOP], ds[<span style="color: #666666">1</span>,START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Measured&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( xs[START:STOP], ys[START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Filtered&quot;</span>)
+ax1<span style="color: #666666">.</span>legend()
+
+ax2 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">2</span> )
+ax2<span style="color: #666666">.</span>plot( np<span style="color: #666666">.</span>sqrt((xs[START:STOP]<span style="color: #666666">-</span>xt[START:STOP])<span style="color: #666666">**2</span> <span style="color: #666666">+</span> (ys[START:STOP]<span style="color: #666666">-</span>yt[START:STOP])<span style="color: #666666">**2</span>), linewidth<span style="color: #666666">=2</span> )
+
+ax3 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">3</span>)
+ax3<span style="color: #666666">.</span>plot( xs[START:STOP], ps[START:STOP], linewidth<span style="color: #666666">=2</span>)
+
+kf2 <span style="color: #666666">=</span> addJBFigure(<span style="color: #BA2121">&quot;kf2&quot;</span>, <span style="color: #666666">0</span>, <span style="color: #666666">0</span>, fig )
+plt<span style="color: #666666">.</span>close()
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-20ebd8b7-ce37-4a4b-afec-1562b5d64556" ><span id="id-20ebd8b7-ce37-4a4b-afec-1562b5d64556"><img id="img-id-20ebd8b7-ce37-4a4b-afec-1562b5d64556"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-efdac316-523f-47d6-8d6e-d7abd177e814" ><span id="id-efdac316-523f-47d6-8d6e-d7abd177e814"><img id="img-id-efdac316-523f-47d6-8d6e-d7abd177e814" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00017_frag_00001" data-state="slide_00017_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+<div class="jb-input jb-render jb-code" style="text-align:center">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-input-code jb-render">
+<div class="highlight" style="background: #f8f8f8; color:#101010;display=inline-block;"><pre style="line-height: 125%"><span></span>START<span style="color: #666666">=680</span>
+STOP<span style="color: #666666">=</span>START<span style="color: #666666">+20</span>
+
+fig <span style="color: #666666">=</span> plt<span style="color: #666666">.</span>figure( dpi<span style="color: #666666">=300</span>)
+ax1 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">1</span>)
+ax1<span style="color: #666666">.</span>plot( xt[START:STOP], yt[START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;True&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( ds[<span style="color: #666666">0</span>,START:STOP], ds[<span style="color: #666666">1</span>,START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Measured&quot;</span>)
+ax1<span style="color: #666666">.</span>plot( xs[START:STOP], ys[START:STOP], linewidth<span style="color: #666666">=2</span>, label<span style="color: #666666">=</span><span style="color: #BA2121">&quot;Filtered&quot;</span>)
+ax1<span style="color: #666666">.</span>legend()
+
+ax2 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">2</span> )
+ax2<span style="color: #666666">.</span>plot( np<span style="color: #666666">.</span>sqrt((xs[START:STOP]<span style="color: #666666">-</span>xt[START:STOP])<span style="color: #666666">**2</span> <span style="color: #666666">+</span> (ys[START:STOP]<span style="color: #666666">-</span>yt[START:STOP])<span style="color: #666666">**2</span>), linewidth<span style="color: #666666">=2</span> )
+
+ax3 <span style="color: #666666">=</span> fig<span style="color: #666666">.</span>add_subplot(<span style="color: #666666">3</span>,<span style="color: #666666">1</span>,<span style="color: #666666">3</span>)
+ax3<span style="color: #666666">.</span>plot( xs[START:STOP], ps[START:STOP], linewidth<span style="color: #666666">=2</span>)
+
+kf3 <span style="color: #666666">=</span> addJBFigure(<span style="color: #BA2121">&quot;kf3&quot;</span>, <span style="color: #666666">0</span>, <span style="color: #666666">0</span>, fig )
+plt<span style="color: #666666">.</span>close()
+</pre></div>
+
+</div><!-- end of jb-input-code jb-render -->
+
+</div>
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-68df244a-1d86-4c23-9673-0e09666d7bff" ><span id="id-68df244a-1d86-4c23-9673-0e09666d7bff"><img id="img-id-68df244a-1d86-4c23-9673-0e09666d7bff"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-26d67963-e0bb-4c8c-965b-bb5d4b4202ab" ><span id="id-26d67963-e0bb-4c8c-965b-bb5d4b4202ab"><img id="img-id-26d67963-e0bb-4c8c-965b-bb5d4b4202ab" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+<section id="slide_00018_frag_00001" data-state="slide_00018_frag_00001">
+
+
+<!-- Header -->
+  
+
+<!-- Background -->
+
+
+<!-- Slide -->
+<div class="jb-slide">
+
+<div class="jb-output-code jb-render">
+
+<!-- start embedded style -->
+
+<!-- end embedded style -->
+<div class="jb-output jb-render">
+
+<h1>Kalman Filter Example</h1>
+
+<table>
+<tr>
+<td>
+<span id="id-82933ca4-04c0-4f8a-911d-567ad85f904b" ><span id="id-82933ca4-04c0-4f8a-911d-567ad85f904b"><img id="img-id-82933ca4-04c0-4f8a-911d-567ad85f904b"     src="assets/images/kf2.svg"/></span>
+</span>
+
+</td>
+<td>
+<span id="id-b7fa5863-1dd2-4f78-873b-9ea6f64aa953" ><span id="id-b7fa5863-1dd2-4f78-873b-9ea6f64aa953"><img id="img-id-b7fa5863-1dd2-4f78-873b-9ea6f64aa953"     src="assets/images/kf3.svg"/></span>
+</span>
+
+</td>
+</tr>
+</table>
+</div><!-- end of jb-output jb-render -->
+</div><!-- end of jb-output-code jb-render -->
+
+
+</div>
+<!-- Footer -->
+
+<div class="jb-footer-left plain">
+    <span id="id-8f3981da-cd31-48a6-aff0-c3fd66aa2df5" ><span id="id-8f3981da-cd31-48a6-aff0-c3fd66aa2df5"><img id="img-id-8f3981da-cd31-48a6-aff0-c3fd66aa2df5"     src="assets/images/logo.png"/></span>
+</span>
+
+</div>
+<div class="jb-footer-right plain">
+    <span id="id-cabca701-8a5d-4c9b-b9b7-44e10ea5a4af" ><span id="id-cabca701-8a5d-4c9b-b9b7-44e10ea5a4af"><img id="img-id-cabca701-8a5d-4c9b-b9b7-44e10ea5a4af" width="162" height="138"   src="assets/images/robbi.png"/></span>
+</span>
+
+</div>
+
+<aside class="notes">
+
+</aside>
+
+
+
+</section>
+        </div>
+        </div>
+
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                math: {
+                    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+                    config: 'TeX-AMS_HTML-full',  // See http://docs.mathjax.org/en/latest/config-files.html
+                    // tex2jax: {
+                    //     inlineMath: [['$', '$'], ['\(', '\)']],
+                    //     displayMath: [['$$', '$$'], ['\[', '\]']],
+                    //     processEscapes: true,
+                    //     processEnvironments: true,
+                    //     skipTags: ['script', 'noscript', 'style', 'textarea', 'code', 'pre'],
+                    //     displayAlign: 'center',
+                    // }                
+                },
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true }
+                ]
+            });
+        </script>
+
+        <script>
+            <!-- Assets -->
+var assets = {
+"robbi" : new JBImage( "robbi", "12677", "162", "138", null, null, "assets/images/robbi", "png" ),
+"logo" : new JBImage( "logo", "12033", "0", "0", null, null, "assets/images/logo", "png" ),
+"fira-logo-1" : new JBImage( "fira-logo-1", "93836", "0", "0", null, null, "assets/images/FIRA-logo-1", "png" ),
+"pairLogo" : new JBImage( "pairLogo", "63051", "0", "0", null, null, "assets/images/pairLogo", "png" ),
+"arrows" : new JBImage( "arrows", "1790", "0", "0", null, null, "assets/images/arrows", "svg" ),
+"d1" : new JBImage( "d1", "63971", "0", "0", null, null, "assets/images/d1", "svg" ),
+"kf1" : new JBImage( "kf1", "106221", "0", "0", null, null, "assets/images/kf1", "svg" ),
+"kf2" : new JBImage( "kf2", "36232", "0", "0", null, null, "assets/images/kf2", "svg" ),
+"kf3" : new JBImage( "kf3", "42323", "0", "0", null, null, "assets/images/kf3", "svg" ) 
+};
+var assetInstances = {
+    "id-5d2e52b6-59f7-414a-b927-fd5076eb0dd8": assets["robbi"],
+    "id-f2994b22-9914-4719-ac80-e448b5c2f8b3": assets["robbi"],
+    "id-0a79ee94-0d4b-426d-bc3a-3d4433935b83": assets["robbi"],
+    "id-65d3ed8b-7538-45f3-9538-bec61d8bdee6": assets["robbi"],
+    "id-656fed26-45be-4447-a9f7-83685a793693": assets["robbi"],
+    "id-704040a2-81fe-4ce5-bc74-fd6446ff5776": assets["robbi"],
+    "id-932381e9-5d67-4277-9f6e-475bd8430670": assets["robbi"],
+    "id-4ff8ae30-9b01-4a1b-9eb1-e400aacc4054": assets["robbi"],
+    "id-45dde864-f4f6-42b3-9e4c-aadf004e7784": assets["robbi"],
+    "id-17764a92-ac9a-4e69-b60c-b28c8838d195": assets["robbi"],
+    "id-676255e1-0b6f-4dcd-8e89-d6e954771354": assets["robbi"],
+    "id-0a6cde60-edbf-430d-82f3-eb0ca71527b4": assets["robbi"],
+    "id-330baba5-b0dc-4681-90c2-9ba68675de75": assets["robbi"],
+    "id-157bfd2b-8ad6-4cb5-a1c7-37eb45320650": assets["robbi"],
+    "id-efdac316-523f-47d6-8d6e-d7abd177e814": assets["robbi"],
+    "id-26d67963-e0bb-4c8c-965b-bb5d4b4202ab": assets["robbi"],
+    "id-cabca701-8a5d-4c9b-b9b7-44e10ea5a4af": assets["robbi"],
+    "id-613d886e-5ba0-4060-b264-08a59410207a": assets["logo"],
+    "id-da8096f5-0097-433f-b061-6bd6dab4d2fb": assets["logo"],
+    "id-8654bfd7-fbf4-4218-b544-54a599423909": assets["logo"],
+    "id-4ab1cced-abbd-45b1-a886-92c9e0096d55": assets["logo"],
+    "id-b32522f2-2dc2-4c88-9a3b-665fc01c7e12": assets["logo"],
+    "id-6c15a511-04e1-4662-9d07-39dcf276c3c2": assets["logo"],
+    "id-be150ef0-4a39-48bb-abe7-d331ebf77598": assets["logo"],
+    "id-f8081f63-43af-4d7d-8d9d-b08ba3378eb0": assets["logo"],
+    "id-e2ee8957-d293-4a58-b1dd-392947edd46e": assets["logo"],
+    "id-f6d2dd57-c001-475a-b9fc-a089fb75582b": assets["logo"],
+    "id-0535fff3-42a4-4d1f-b801-bd69331095c7": assets["logo"],
+    "id-fe17f408-9f7e-459e-ad02-6d6c961df771": assets["logo"],
+    "id-e48cb7c8-9fb6-49b1-bb21-97a982d61507": assets["logo"],
+    "id-6ec1797e-129d-4954-820f-5d30d25a302b": assets["logo"],
+    "id-20ebd8b7-ce37-4a4b-afec-1562b5d64556": assets["logo"],
+    "id-68df244a-1d86-4c23-9673-0e09666d7bff": assets["logo"],
+    "id-8f3981da-cd31-48a6-aff0-c3fd66aa2df5": assets["logo"],
+    "id-5d462f7e-5ce0-445b-8b2e-c35181c84643": assets["arrows"],
+    "id-f96aaea8-b428-4612-92e2-c44522dbd6a8": assets["d1"],
+    "id-fa72cf02-89d7-4df0-a418-624e848ff50b": assets["kf1"],
+    "id-82933ca4-04c0-4f8a-911d-567ad85f904b": assets["kf2"],
+    "id-b7fa5863-1dd2-4f78-873b-9ea6f64aa953": assets["kf3"]
+};
+<!-- End of Assets -->
+
+            convertURLs(assetInstances, "smart-path");
+        </script>
+        <script>
+            <!-- Characters -->
+var characters =
+{};
+<!-- End of Characters -->
+
+        </script>
+    </body>
+</html>
